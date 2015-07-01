@@ -2,6 +2,41 @@
 import numpy as np
 import cv2
 
+from Queue import Queue
+from PIL import Image
+
+def iswhite(value):
+	if value == (255,255,255) or value == (255,255,255,255): # Remove the alpha channel later as it adds to calculation time
+		return True
+
+def getadjacent(n):
+	x,y = n
+	return [(x-1,y),(x,y-1),(x+1,y),(x,y+1)]
+
+def BFS(start, end, pixels):
+	queue = Queue()
+	queue.put([start]) # Wrapping the start tuple in a list
+
+	while not queue.empty():
+		path = queue.get()
+		pixel = path[-1]
+
+		if pixel == end:
+			return path
+
+		for adjacent in getadjacent(pixel):
+			x,y = adjacent
+			try:
+				if iswhite(pixels[x,y]):
+					pixels[x,y] = (127,127,127) # see note
+					new_path = list(path)
+					new_path.append(adjacent)
+					queue.put(new_path)
+			except IndexError:
+				pass
+
+	print "Queue has been exhausted. No answer was found."
+
 cap = cv2.VideoCapture(0)
 cap.set(3,1024) #set horizontal resolution
 cap.set(4,768) #set vertical resolution
@@ -40,7 +75,7 @@ while(True):
             blue_max_area = area
             best_blue_cnt = cnt
 
-    # finding centroids of best_cnt and draw a circle there
+    # Finding centroids of best_cnt and draw a circle there
     M = cv2.moments(best_red_cnt)
     cx,cy = int(M['m10']/M['m00']), int(M['m01']/M['m00'])
     cv2.circle(frame,(cx,cy),5,(255,0,0),-1)
@@ -63,6 +98,21 @@ while(True):
     cv2.imshow('erosion',erosion)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
+
+base_img = Image.fromarray(erosion)
+base_pixels = base_img.load()
+
+path = BFS(start, end, base_pixels)
+
+path_img = Image.open(sys.argv[1])
+path_pixels = path_img.load()
+
+for position in path:
+	x,y = position
+	path_pixels[x,y] = (255,0,0) # red
+
+path_img.save(sys.argv[2])
+
 
 # When everything done, release the capture
 cv2.imwrite("testgray.png",gray)
