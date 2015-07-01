@@ -50,23 +50,23 @@ while(True):
 
     # Convert to hsv and find range of colors
     hsv = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
-    red_threshold = cv2.inRange(hsv,np.array((0, 80, 80)), np.array((40, 255, 255)))
-    blue_threshold = cv2.inRange(hsv,np.array((100, 80, 80)), np.array((140, 255, 255)))
+    green_threshold = cv2.inRange(hsv,np.array((45, 63, 63)), np.array((75, 255, 255)))
+    blue_threshold = cv2.inRange(hsv,np.array((90, 63, 63)), np.array((120, 255, 255)))
     
-    red_threshold_copy = red_threshold.copy()
+    green_threshold_copy = green_threshold.copy()
     blue_threshold_copy = blue_threshold.copy()
     
     # Find contours in the threshold image
-    red_contours, red_hierarchy = cv2.findContours(red_threshold,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
+    green_contours, green_hierarchy = cv2.findContours(green_threshold,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
     blue_contours, blue_hierarchy = cv2.findContours(blue_threshold,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
 
     # Finding contour with maximum area and store it as best_cnt
-    red_max_area = 0
-    for cnt in red_contours:
+    green_max_area = 0
+    for cnt in green_contours:
         area = cv2.contourArea(cnt)
-        if area > red_max_area:
-            red_max_area = area
-            best_red_cnt = cnt
+        if area > green_max_area:
+            green_max_area = area
+            best_green_cnt = cnt
 
     blue_max_area = 0
     for cnt in blue_contours:
@@ -76,21 +76,28 @@ while(True):
             best_blue_cnt = cnt
 
     # Finding centroids of best_cnt and draw a circle there
-    M = cv2.moments(best_red_cnt)
+    M = cv2.moments(best_green_cnt)
     cx,cy = int(M['m10']/M['m00']), int(M['m01']/M['m00'])
     cv2.circle(frame,(cx,cy),5,(255,0,0),-1)
+    start = (cx,cy)
+    print start
 
     M = cv2.moments(best_blue_cnt)
     cx,cy = int(M['m10']/M['m00']), int(M['m01']/M['m00'])
     cv2.circle(frame,(cx,cy),5,(0,255,0),-1)
+    end = (cx,cy)
+    print end
 
     # Our operations on the frame come here
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY) #grayscale
     ret,threshold = cv2.threshold(gray,95,255,cv2.THRESH_BINARY) #threshold
     erosion = cv2.erode(threshold,kernel,iterations = 1)
 
+    cv2.circle(erosion,start,15,(255,255,255),-1)
+    cv2.circle(erosion,end,15,(255,255,255),-1)
+
     # Display the resulting frame
-    cv2.imshow('red',red_threshold_copy)
+    cv2.imshow('green',green_threshold_copy)
     cv2.imshow('blue',blue_threshold_copy)
 
     cv2.imshow('grayscale',gray)
@@ -104,14 +111,14 @@ base_pixels = base_img.load()
 
 path = BFS(start, end, base_pixels)
 
-path_img = Image.open(sys.argv[1])
+path_img = Image.fromarray(erosion)
 path_pixels = path_img.load()
 
 for position in path:
 	x,y = position
-	path_pixels[x,y] = (255,0,0) # red
+	path_pixels[x,y] = (255,0,0) # green
 
-path_img.save(sys.argv[2])
+path_img.save("solution.png")
 
 
 # When everything done, release the capture
