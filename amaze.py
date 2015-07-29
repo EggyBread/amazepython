@@ -1,15 +1,26 @@
 #!/usr/bin/python
 import numpy as np
 import cv2
+import serial
+from time import sleep
 
 from Queue import Queue
 from PIL import Image
 
 # Define some constants
+CAM_WIDTH = 1024
+CAM_HEIGHT = 768
+
+LOWER_GREEN = (45, 63, 63)
+UPPER_GREEN = (75, 255, 255)
+LOWER_BLUE = (90, 95, 95)
+UPPER_BLUE = (120, 255, 255)
+
 ENDPOINT_RADIUS = 16
 
+BAUD_RATE = 115200
+
 def iswhite(value):
-    print value
     if value == (255,255,255): # Remove the alpha channel later as it adds to calculation time
         return True
 
@@ -42,8 +53,8 @@ def BFS(start, end, pixels):
     print "Queue has been exhausted. No answer was found."
 
 cap = cv2.VideoCapture(0)
-cap.set(3,1024) #set horizontal resolution
-cap.set(4,768) #set vertical resolution
+cap.set(3,CAM_WIDTH) #set horizontal resolution
+cap.set(4,CAM_HEIGHT) #set vertical resolution
 
 # square kernel
 kernel = np.ones((12,12),np.uint8)
@@ -54,8 +65,8 @@ while(True):
 
     # Convert to hsv and find range of colors
     hsv = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
-    green_threshold = cv2.inRange(hsv,np.array((45, 63, 63)), np.array((75, 255, 255)))
-    blue_threshold = cv2.inRange(hsv,np.array((90, 95, 95)), np.array((120, 255, 255)))
+    green_threshold = cv2.inRange(hsv,np.array(LOWER_GREEN), np.array(UPPER_GREEN))
+    blue_threshold = cv2.inRange(hsv,np.array(LOWER_BLUE), np.array(UPPER_BLUE))
     
     green_threshold_copy = green_threshold.copy()
     blue_threshold_copy = blue_threshold.copy()
@@ -136,10 +147,34 @@ path_pro_pixels = path_pro.load()
 path_raw = raw
 path_raw_pixels = path_raw.load()
 
-for position in path:
+try:
+	ser = serial.Serial('/dev/ttyACM0', BAUD_RATE)
+except serial.SerialException:
+	try:
+		ser = serial.Serial('/dev/ttyACM1', BAUD_RATE)
+	except serial.SerialException:
+		ser = serial.Serial('/dev/ttyACM2', BAUD_RATE)
+
+for index, position in enumerate(path):
     x,y = position
+    ser.write(str(x) + '\n')
+    sleep(0.005)
+    ser.write(str(y) + '\n')
+    sleep(0.005)
+    print "index " + str(index)
+    print str(x)
+    print str(y)
     path_pro_pixels[x,y] = (255,0,0) # Red
     path_raw_pixels[x,y] = (255,0,0)
+
+ser.write(str('a'))
+print "path size: " + str(len(path))
+
+cv2.imshow('solution',np.array(path_raw_pixels.getdata()))
+
+while(True):
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
 
 path_pro.save("solution_processed.png")
 path_raw.save("solution_raw.png")
