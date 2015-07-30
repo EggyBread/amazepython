@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import numpy as np
 import cv2
+from rdp import rdp
 import serial
 from time import sleep
 
@@ -20,7 +21,14 @@ KERNEL_SIZE = 8
 
 ENDPOINT_RADIUS = 16
 
+EPSILON = 0.5
+
+STEPS_PER_PIXEL = 1
+
 BAUD_RATE = 115200
+
+def getsteps(pixels, factor):
+	return pixels * factor
 
 def iswhite(value):
     if value == (255,255,255): # Remove the alpha channel later as it adds to calculation time
@@ -157,11 +165,15 @@ except serial.SerialException:
 	except serial.SerialException:
 		ser = serial.Serial('/dev/ttyACM2', BAUD_RATE)
 
+print path
+path = rdp(path,epsilon=EPSILON)
+print path
+
 for index, position in enumerate(path):
     x,y = position
-    ser.write(str(x) + '\n')
+    ser.write(str(getsteps(x,STEPS_PER_PIXEL)) + '\n')
     sleep(0.005)
-    ser.write(str(y) + '\n')
+    ser.write(str(getsteps(y,STEPS_PER_PIXEL)) + '\n')
     sleep(0.005)
     print "index " + str(index)
     print str(x)
