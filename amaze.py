@@ -13,8 +13,10 @@ CAM_HEIGHT = 768
 
 LOWER_GREEN = (45, 63, 63)
 UPPER_GREEN = (75, 255, 255)
-LOWER_BLUE = (90, 95, 95)
+LOWER_BLUE = (90, 127, 95)
 UPPER_BLUE = (120, 255, 255)
+
+KERNEL_SIZE = 8
 
 ENDPOINT_RADIUS = 16
 
@@ -57,7 +59,7 @@ cap.set(3,CAM_WIDTH) #set horizontal resolution
 cap.set(4,CAM_HEIGHT) #set vertical resolution
 
 # square kernel
-kernel = np.ones((12,12),np.uint8)
+kernel = np.ones((KERNEL_SIZE,KERNEL_SIZE),np.uint8)
 
 while(True):
     # Capture frame-by-frame
@@ -170,7 +172,7 @@ for index, position in enumerate(path):
 ser.write(str('a'))
 print "path size: " + str(len(path))
 
-cv2.imshow('solution',np.array(path_raw_pixels.getdata()))
+# cv2.imshow('solution',np.array(path_raw_pixels.getdata()))
 
 while(True):
     if cv2.waitKey(1) & 0xFF == ord('q'):
