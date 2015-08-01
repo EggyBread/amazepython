@@ -62,7 +62,10 @@ def BFS(start, end, pixels):
 
     print "Queue has been exhausted. No answer was found."
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
+if not cap.isOpened():
+	cap = cv2.VideoCapture(0)
+
 cap.set(3,CAM_WIDTH) #set horizontal resolution
 cap.set(4,CAM_HEIGHT) #set vertical resolution
 
