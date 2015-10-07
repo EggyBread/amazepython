@@ -4,6 +4,7 @@ import cv2
 from rdp import rdp
 import serial
 from time import sleep
+import math
 
 from Queue import Queue
 import Image
@@ -23,12 +24,12 @@ ENDPOINT_RADIUS = 16
 
 EPSILON = 0.5
 
-STEPS_PER_PIXEL = 1
+STEPS_PER_PIXEL = 0.25
 
 BAUD_RATE = 115200
 
 def getsteps(pixels, factor):
-    return pixels * factor
+    return math.floor(pixels * factor)
 
 def iswhite(value):
     if value == (255,255,255): # Remove the alpha channel later as it adds to calculation time
@@ -182,12 +183,12 @@ except serial.SerialException:
         except serial.SerialException:
             connected = False
 
-for index, position in enumerate(path):
+rdp_path = rdp(path,epsilon=EPSILON)
+for index, position in enumerate(rdp_path):
     x,y = position
     path_pro_pixels[x,y] = (255,0,0)
     path_raw_pixels[x,y] = (255,0,0)
 
-rdp_path = rdp(path,epsilon=EPSILON)
 if connected:
     print "Arduino connected. Sending optimized path now..."
 else:
