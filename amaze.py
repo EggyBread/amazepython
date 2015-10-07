@@ -116,14 +116,14 @@ while(True):
         M = cv2.moments(best_green_cnt)
         cx,cy = int(M['m10']/M['m00']), int(M['m01']/M['m00'])
         start = (cx,cy)
-        print start
+        # print start
 
     if best_blue_cnt is not None:
         M = cv2.moments(best_blue_cnt)
         cx,cy = int(M['m10']/M['m00']), int(M['m01']/M['m00'])
         
         end = (cx,cy)
-        print end
+        # print end
 
     # Our operations on the frame come here
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY) #grayscale
@@ -141,13 +141,12 @@ while(True):
     except NameError:
         pass
 
-    # Display the resulting frame
-    cv2.imshow('raw',frame)
-
-    cv2.imshow('green',green_threshold_copy)
-    cv2.imshow('blue',blue_threshold_copy)
+    # cv2.imshow('green',green_threshold_copy)
+    # cv2.imshow('blue',blue_threshold_copy)
 
     cv2.imshow('processed',erosion)
+    cv2.imshow('raw',frame)
+
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
@@ -165,6 +164,12 @@ path_pro_pixels = path_pro.load()
 path_raw = raw
 path_raw_pixels = path_raw.load()
 
+rdp_path_pro = problem
+rdp_path_pro_pixels = rdp_path_pro.load()
+
+rdp_path_raw = raw
+rdp_path_raw_pixels = rdp_path_raw.load()
+
 connected = True
 try:
     ser = serial.Serial('/dev/ttyACM0', BAUD_RATE)
@@ -177,7 +182,16 @@ except serial.SerialException:
         except serial.SerialException:
             connected = False
 
+for index, position in enumerate(path):
+    x,y = position
+    path_pro_pixels[x,y] = (255,0,0)
+    path_raw_pixels[x,y] = (255,0,0)
+
 rdp_path = rdp(path,epsilon=EPSILON)
+if connected:
+    print "Arduino connected. Sending optimized path now..."
+else:
+	print "Arduino not connected. Saving optimized solution to images only..."
 for index, position in enumerate(rdp_path):
     x,y = position
     if connected:
@@ -186,15 +200,14 @@ for index, position in enumerate(rdp_path):
     if connected:
         ser.write(str(getsteps(y,STEPS_PER_PIXEL)) + '\n')
     sleep(0.005)
-    print "index " + str(index)
-    print str(x)
-    print str(y)
-    path_pro_pixels[x,y] = (255,0,0) # Red
-    path_raw_pixels[x,y] = (255,0,0)
+    rdp_path_pro_pixels[x,y] = (255,0,0)
+    rdp_path_raw_pixels[x,y] = (255,0,0)
+
+print "Done."
 
 if connected:
     ser.write(str('a'))
-print "path size: " + str(len(path))
+    print "Path sent to Arduino. path size is " + str(len(rdp_path))
 
 # cv2.imshow('solution',np.array(path_raw_pixels.getdata()))
 
@@ -204,6 +217,9 @@ while(True):
 
 path_pro.save("solution_processed.png")
 path_raw.save("solution_raw.png")
+
+rdp_path_pro.save("optimised_solution_processed.png")
+rdp_path_raw.save("optimised_solution_raw.png")
 
 # When everything done, release the capture
 cv2.imwrite("testgray.png",gray)
