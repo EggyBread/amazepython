@@ -75,9 +75,6 @@ if not cap.isOpened():
 cap.set(3,CAM_WIDTH) #set horizontal resolution
 cap.set(4,CAM_HEIGHT) #set vertical resolution
 
-# square kernel
-kernel = np.ones((KERNEL_SIZE,KERNEL_SIZE),np.uint8)
-
 while(True):
     # Capture frame-by-frame
     ret, frame = cap.read()
@@ -129,6 +126,9 @@ while(True):
     # Our operations on the frame come here
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY) #grayscale
     ret,threshold = cv2.threshold(gray,95,255,cv2.THRESH_BINARY) #threshold
+    
+    # square kernel
+    kernel = np.ones((KERNEL_SIZE,KERNEL_SIZE),np.uint8)
     erosion = cv2.erode(threshold,kernel,iterations = 1)
 
     try:
@@ -155,7 +155,8 @@ while(True):
         KERNEL_SIZE += 1
         print "KERNEL_SIZE = " + str(KERNEL_SIZE)
     elif key == 84:
-        KERNEL_SIZE -= 1
+        if KERNEL_SIZE > 1:
+            KERNEL_SIZE -= 1
         print "KERNEL_SIZE = " + str(KERNEL_SIZE)
 
 raw = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
@@ -199,7 +200,7 @@ for index, position in enumerate(path):
 if connected:
     print "Arduino connected. Sending optimized path now..."
 else:
-	print "Arduino not connected. Saving optimized solution to images only..."
+    print "Arduino not connected. Saving optimized solution to images only..."
 for index, position in enumerate(rdp_path):
     x,y = position
     if connected:
