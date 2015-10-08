@@ -152,9 +152,11 @@ while(True):
     if key == ord('q'):
         break;
     elif key == 82:
-        print "Up pressed."
+        KERNEL_SIZE += 1
+        print "KERNEL_SIZE = " + str(KERNEL_SIZE)
     elif key == 84:
-        print "Down pressed."
+        KERNEL_SIZE -= 1
+        print "KERNEL_SIZE = " + str(KERNEL_SIZE)
 
 raw = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
 problem = Image.fromarray(erosion).convert('RGB')
