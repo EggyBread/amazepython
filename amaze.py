@@ -148,8 +148,13 @@ while(True):
     cv2.imshow('processed',erosion)
     cv2.imshow('raw',frame)
 
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+    key = cv2.waitKey(1) & 0xFF
+    if key == ord('q'):
+        break;
+    elif key == 82:
+        print "Up pressed."
+    elif key == 84:
+        print "Down pressed."
 
 raw = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
 problem = Image.fromarray(erosion).convert('RGB')
