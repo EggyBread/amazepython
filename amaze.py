@@ -158,17 +158,18 @@ base_img = problem
 base_pixels = base_img.load()
 
 path = BFS(start, end, base_pixels)
+rdp_path = rdp(path,epsilon=EPSILON)
 
-path_pro = problem
-path_pro_pixels = path_pro.load()
+path_problem = problem
+path_problem_pixels = path_problem.load()
 
 path_raw = raw
 path_raw_pixels = path_raw.load()
 
-rdp_path_pro = problem
-rdp_path_pro_pixels = rdp_path_pro.load()
+rdp_path_problem = problem.copy()
+rdp_path_problem_pixels = rdp_path_problem.load()
 
-rdp_path_raw = raw
+rdp_path_raw = raw.copy()
 rdp_path_raw_pixels = rdp_path_raw.load()
 
 connected = True
@@ -183,10 +184,9 @@ except serial.SerialException:
         except serial.SerialException:
             connected = False
 
-rdp_path = rdp(path,epsilon=EPSILON)
-for index, position in enumerate(rdp_path):
+for index, position in enumerate(path):
     x,y = position
-    path_pro_pixels[x,y] = (255,0,0)
+    path_problem_pixels[x,y] = (255,0,0)
     path_raw_pixels[x,y] = (255,0,0)
 
 if connected:
@@ -201,7 +201,7 @@ for index, position in enumerate(rdp_path):
     if connected:
         ser.write(str(getsteps(y,STEPS_PER_PIXEL)) + '\n')
     sleep(0.005)
-    rdp_path_pro_pixels[x,y] = (255,0,0)
+    rdp_path_problem_pixels[x,y] = (255,0,0)
     rdp_path_raw_pixels[x,y] = (255,0,0)
 
 print "Done."
@@ -216,10 +216,10 @@ while(True):
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
-path_pro.save("solution_processed.png")
+path_problem.save("solution_processed.png")
 path_raw.save("solution_raw.png")
 
-rdp_path_pro.save("optimised_solution_processed.png")
+rdp_path_problem.save("optimised_solution_processed.png")
 rdp_path_raw.save("optimised_solution_raw.png")
 
 # When everything done, release the capture
