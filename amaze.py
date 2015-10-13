@@ -44,11 +44,6 @@ def BFS(start, end, pixels):
     queue.put([start]) # Wrapping the start tuple in a list
 
     while not queue.empty():
-        # open_cv_image = np.array(pixels.convert('RGB')) 
-        # Convert RGB to BGR 
-        # open_cv_image = open_cv_image[:, :, ::-1].copy()
-        # cv2.imshow('solving...',open_cv_image)
-
         path = queue.get()
         pixel = path[-1]
 
@@ -59,7 +54,14 @@ def BFS(start, end, pixels):
             x,y = adjacent
             try:
                 if iswhite(pixels[x,y]):
-                    pixels[x,y] = (127,127,127) # see note
+                    pixels[x,y] = (127,127,127)
+
+                    open_cv_image = np.array(base_img)
+                    # Convert RGB to BGR
+                    open_cv_image = open_cv_image[:, :, ::-1].copy()
+                    cv2.imshow('solving...', open_cv_image)
+                    cv2.waitKey(1) & 0xFF
+
                     new_path = list(path)
                     new_path.append(adjacent)
                     queue.put(new_path)
