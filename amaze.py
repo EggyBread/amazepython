@@ -43,6 +43,7 @@ def BFS(start, end, pixels):
     queue = Queue()
     queue.put([start]) # Wrapping the start tuple in a list
 
+    pixelsDiscovered = 0
     while not queue.empty():
         path = queue.get()
         pixel = path[-1]
@@ -55,16 +56,18 @@ def BFS(start, end, pixels):
             try:
                 if iswhite(pixels[x,y]):
                     pixels[x,y] = (127,127,127)
-
-                    open_cv_image = np.array(base_img)
-                    # Convert RGB to BGR
-                    open_cv_image = open_cv_image[:, :, ::-1].copy()
-                    cv2.imshow('solving...', open_cv_image)
-                    cv2.waitKey(1) & 0xFF
-
                     new_path = list(path)
                     new_path.append(adjacent)
                     queue.put(new_path)
+
+                    pixelsDiscovered += 1
+                    if pixelsDiscovered % 500 == 0:
+                        open_cv_image = np.array(base_img)
+                        # Convert RGB to BGR
+                        open_cv_image = open_cv_image[:, :, ::-1].copy()
+                        cv2.imshow('solving...', open_cv_image)
+                        if cv2.waitKey(1) & 0xFF == ord('c'):
+                            exit()
             except IndexError:
                 pass
 
@@ -152,7 +155,7 @@ while(True):
 
     key = cv2.waitKey(1) & 0xFF
     if key == ord('q'):
-        break;
+        break
     elif key == 82:
         KERNEL_SIZE += 1
         print "KERNEL_SIZE = " + str(KERNEL_SIZE)
