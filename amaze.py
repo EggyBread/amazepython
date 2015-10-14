@@ -10,8 +10,8 @@ from Queue import Queue
 import Image
 
 # Define some constants
-CAM_WIDTH = 1024
-CAM_HEIGHT = 768
+CAM_WIDTH = 1280
+CAM_HEIGHT = 800
 
 LOWER_GREEN = (45, 63, 63)
 UPPER_GREEN = (75, 255, 255)
@@ -24,7 +24,7 @@ ENDPOINT_RADIUS = 16
 
 EPSILON = 0.5
 
-STEPS_PER_PIXEL = 0.25
+STEPS_PER_PIXEL = 0.54
 
 BAUD_RATE = 115200
 
