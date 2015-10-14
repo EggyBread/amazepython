@@ -61,7 +61,7 @@ def BFS(start, end, pixels):
                     queue.put(new_path)
 
                     pixelsDiscovered += 1
-                    if pixelsDiscovered % 500 == 0:
+                    if pixelsDiscovered % 2000 == 0:
                         open_cv_image = np.array(base_img)
                         # Convert RGB to BGR
                         open_cv_image = open_cv_image[:, :, ::-1].copy()
