@@ -40,7 +40,7 @@ def correct_coordinates(pixel, scale_factor, translateX, translateY):
     x += translateX
     y += translateY
 
-    return x,y
+    return x, y
 
 def iswhite(value):
     if value == (255,255,255): # Remove the alpha channel later as it adds to calculation time
@@ -210,24 +210,27 @@ except serial.SerialException:
             connected = False
 
 for index, position in enumerate(path):
-    cp = position
-    path_problem_pixels[cp] = (255,0,0)
-    path_raw_pixels[cp] = (255,0,0)
+    x,y = position
+    path_problem_pixels[x,y] = (255,0,0)
+    path_raw_pixels[x,y] = (255,0,0)
 
 if connected:
     print "Arduino connected. Sending optimized path now..."
 else:
     print "Arduino not connected. Saving optimized solution to images only..."
 for index, position in enumerate(rdp_path):
+    x,y = position
+
     # Corrected Postition
-    cp = correct_coordinates(position, STEPS_PER_PIXEL, TRANSLATE_X, TRANSLATE_Y)
     if connected:
+        cp = correct_coordinates(position, STEPS_PER_PIXEL, TRANSLATE_X, TRANSLATE_Y)
         ser.write(str(cp[0]) + '\n')
         sleep(0.005)
         ser.write(str(cp[1]) + '\n')
         sleep(0.005)
-    rdp_path_problem_pixels[cp] = (255,0,0)
-    rdp_path_raw_pixels[cp] = (255,0,0)
+
+    rdp_path_problem_pixels[x,y] = (255,0,0)
+    rdp_path_raw_pixels[x,y] = (255,0,0)
 
 print "Done."
 
