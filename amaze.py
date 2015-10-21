@@ -25,11 +25,22 @@ ENDPOINT_RADIUS = 16
 EPSILON = 0.9
 
 STEPS_PER_PIXEL = 0.54
+TRANSLATE_X = 0
+TRANSLATE_Y = 0
 
 BAUD_RATE = 115200
 
-def getsteps(pixels, factor):
-    return math.floor(pixels * factor)
+def correct_coordinates(pixel, scale_factor, translateX, translateY):
+    x, y = pixel
+    # Scale
+    x = math.floor(x * scale_factor)
+    y = math.floor(y * scale_factor)
+
+    # Translate
+    x += translateX
+    y += translateY
+
+    return x,y
 
 def iswhite(value):
     if value == (255,255,255): # Remove the alpha channel later as it adds to calculation time
@@ -133,6 +144,7 @@ while(True):
     ret,threshold = cv2.threshold(gray,95,255,cv2.THRESH_BINARY) #threshold
     
     # square kernel
+
     kernel = np.ones((KERNEL_SIZE,KERNEL_SIZE),np.uint8)
     erosion = cv2.erode(threshold,kernel,iterations = 1)
 
@@ -198,24 +210,24 @@ except serial.SerialException:
             connected = False
 
 for index, position in enumerate(path):
-    x,y = position
-    path_problem_pixels[x,y] = (255,0,0)
-    path_raw_pixels[x,y] = (255,0,0)
+    cp = position
+    path_problem_pixels[cp] = (255,0,0)
+    path_raw_pixels[cp] = (255,0,0)
 
 if connected:
     print "Arduino connected. Sending optimized path now..."
 else:
     print "Arduino not connected. Saving optimized solution to images only..."
 for index, position in enumerate(rdp_path):
-    x,y = position
+    # Corrected Postition
+    cp = correct_coordinates(position, STEPS_PER_PIXEL, TRANSLATE_X, TRANSLATE_Y)
     if connected:
-        ser.write(str(getsteps(x,STEPS_PER_PIXEL)) + '\n')
-    sleep(0.005)
-    if connected:
-        ser.write(str(getsteps(y,STEPS_PER_PIXEL)) + '\n')
-    sleep(0.005)
-    rdp_path_problem_pixels[x,y] = (255,0,0)
-    rdp_path_raw_pixels[x,y] = (255,0,0)
+        ser.write(str(cp[0]) + '\n')
+        sleep(0.005)
+        ser.write(str(cp[1]) + '\n')
+        sleep(0.005)
+    rdp_path_problem_pixels[cp] = (255,0,0)
+    rdp_path_raw_pixels[cp] = (255,0,0)
 
 print "Done."
 
