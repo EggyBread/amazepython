@@ -1,4 +1,5 @@
 #!/usr/bin/python
+from __future__ import division
 import numpy as np
 import cv2
 from rdp import rdp
@@ -24,22 +25,25 @@ ENDPOINT_RADIUS = 16
 
 EPSILON = 0.9
 
-STEPS_PER_PIXEL = 0.54
-TRANSLATE_X = 0
-TRANSLATE_Y = 0
+MOTOR_RANGE_STEPS = 432
 
 BAUD_RATE = 115200
 
-def correct_coordinates(pixel, scale_factor, translateX, translateY):
+def correct_coordinates(pixel, translateX, translateY, length_pixels, length_steps):
+    print "Original   = " + str(pixel)
+
     x, y = pixel
+
+    # Translate
+    x -= translateX
+    y -= translateY
+
     # Scale
+    scale_factor = length_steps / length_pixels
     x = math.floor(x * scale_factor)
     y = math.floor(y * scale_factor)
 
-    # Translate
-    x += translateX
-    y += translateY
-
+    print "Corrected  = " + str(x) + ", " + str(y)
     return x, y
 
 def iswhite(value):
@@ -241,7 +245,7 @@ for index, position in enumerate(rdp_path):
 
     # Corrected Postition
     if connected:
-        cp = correct_coordinates(position, STEPS_PER_PIXEL, TRANSLATE_X, TRANSLATE_Y)
+        cp = correct_coordinates(position, area_corner_x, area_corner_y, area_length, MOTOR_RANGE_STEPS)
         ser.write(str(cp[0]) + '\n')
         sleep(0.005)
         ser.write(str(cp[1]) + '\n')
