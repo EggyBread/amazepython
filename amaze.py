@@ -163,6 +163,8 @@ while(True):
     except NameError:
         pass
 
+    cv2.rectangle(frame, (area_corner_x, area_corner_y), (area_corner_x + area_length, area_corner_y + area_length), (0,0,255), 2)
+
     # cv2.imshow('green',green_threshold_copy)
     # cv2.imshow('blue',blue_threshold_copy)
 
@@ -173,17 +175,17 @@ while(True):
     if key == ord('q'): # Press q to confirm shot and proceed
         break
     elif key == 81: # Use the arrow keys to move the table active area
-        area_corner_x -= 1
+        area_corner_x -= 4
     elif key == 82:
-        area_corner_y += 1
+        area_corner_y -= 4
     elif key == 83:
-        area_corner_x += 1
+        area_corner_x += 4
     elif key == 84:
-        area_corner_y -= 1
+        area_corner_y += 4
     elif key == 45: # Press - to grow the table area
-        area_length -= 1
+        area_length -= 4
     elif key == 61: # Press + to grow the table area
-        area_length += 1
+        area_length += 4
     elif key == 91: # Press [ to shrink kernel
         if KERNEL_SIZE > 1:
             KERNEL_SIZE -= 1
