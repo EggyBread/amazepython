@@ -91,6 +91,10 @@ if not cap.isOpened():
 cap.set(3,CAM_WIDTH) #set horizontal resolution
 cap.set(4,CAM_HEIGHT) #set vertical resolution
 
+area_corner_x = 0
+area_corner_y = 0
+area_length = 600
+
 while(True):
     # Capture frame-by-frame
     ret, frame = cap.read()
@@ -166,14 +170,26 @@ while(True):
     cv2.imshow('raw',frame)
 
     key = cv2.waitKey(1) & 0xFF
-    if key == ord('q'):
+    if key == ord('q'): # Press q to confirm shot and proceed
         break
+    elif key == 81: # Use the arrow keys to move the table active area
+        area_corner_x -= 1
     elif key == 82:
-        KERNEL_SIZE += 1
-        print "KERNEL_SIZE = " + str(KERNEL_SIZE)
+        area_corner_y += 1
+    elif key == 83:
+        area_corner_x += 1
     elif key == 84:
+        area_corner_y -= 1
+    elif key == 45: # Press - to grow the table area
+        area_length -= 1
+    elif key == 61: # Press + to grow the table area
+        area_length += 1
+    elif key == 91: # Press [ to shrink kernel
         if KERNEL_SIZE > 1:
             KERNEL_SIZE -= 1
+        print "KERNEL_SIZE = " + str(KERNEL_SIZE)
+    elif key == 93: # Press ] to grow kernel
+        KERNEL_SIZE += 1
         print "KERNEL_SIZE = " + str(KERNEL_SIZE)
 
 raw = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
