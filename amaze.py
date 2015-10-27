@@ -95,9 +95,9 @@ if not cap.isOpened():
 cap.set(3,CAM_WIDTH) #set horizontal resolution
 cap.set(4,CAM_HEIGHT) #set vertical resolution
 
-area_corner_x = 0
+area_corner_x = 240
 area_corner_y = 0
-area_length = 600
+area_length = 800
 
 while(True):
     # Capture frame-by-frame
