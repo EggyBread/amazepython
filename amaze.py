@@ -47,7 +47,9 @@ def correct_coordinates(pixel, translateX, translateY, length_pixels, length_ste
     return x, y
 
 def iswhite(value):
-    if value == (255,255,255): # Remove the alpha channel later as it adds to calculation time
+    if any(c < 225 for c in value):
+        return False
+    else:
         return True
 
 def getadjacent(n):
