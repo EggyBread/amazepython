@@ -4,7 +4,7 @@ import numpy as np
 import cv2
 from rdp import rdp
 import serial
-from time import sleep
+import time
 import math
 
 from Queue import Queue
@@ -206,7 +206,18 @@ problem = Image.fromarray(erosion).convert('RGB')
 base_img = problem
 base_pixels = base_img.load()
 
+start_time = time.time()
 path = BFS(start, end, base_pixels)
+
+print str(time.time() - start_time) + " seconds"
+print str(len(path)) + " path length"
+
+greys = 0
+for p in base_img.getdata():
+    if p == (127,127,127):
+        greys += 1
+print str(greys) + " greys"
+
 rdp_path = rdp(path,epsilon=EPSILON)
 
 path_problem = problem
@@ -249,9 +260,9 @@ for index, position in enumerate(rdp_path):
     if connected:
         cp = correct_coordinates(position, area_corner_x, area_corner_y, area_length, MOTOR_RANGE_STEPS)
         ser.write(str(cp[0]) + '\n')
-        sleep(0.005)
+        time.sleep(0.005)
         ser.write(str(cp[1]) + '\n')
-        sleep(0.005)
+        time.sleep(0.005)
 
     rdp_path_problem_pixels[x,y] = (255,0,0)
     rdp_path_raw_pixels[x,y] = (255,0,0)
